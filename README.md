@@ -1,6 +1,8 @@
 # Arduino_18_Pushbuttons
 ### Manage 18 momentary pushbuttons with one Arduino Nano
 
+![Hardware Prototype](https://github.com/IowaDave/Arduino_18_Pushbuttons/blob/e17db35a0ab9b3aec8c0797a5a2ed53ca84d4c21/Images/IMG_2666.jpg)
+
 I am building toward an I2C pushbutton controller capable of managing 18 discrete pushbuttons with a single Arduino Nano development board.
 
 The controller hardware prototype connects normally-open momentary pushbuttons to pins 2..13 and A0..A3, A6..A7 on an Arduino Nano, for a total of 18 pushbuttons. The Nano actually has 22 I/O pins. Four have been reserved for communications purpoes: pins 0, 1, A4 and A5. Note: external pull-ups are provided to pins 13, A6 and A7.
