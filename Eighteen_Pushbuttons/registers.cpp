@@ -2,20 +2,19 @@
 #include "registers.h"
 
 char bitChar(byte * regAddress, byte bitNumber) {
+  char bitDigit[] = {'0', '1'};
   // handle ACSR differently 
-  // ACSR bit ACO bit gets set to 1 (HIGH)
-  // when pin is grounded,
-  // so we use that bit directly, i.e., HIGH = down
-  if (regAddress == &ACSR) {
+  // pin grounded > ACO = 1 = button down
+  // so we use the ACO bit directly
+  if (regAddress == &ACSR) {      
     if (acsr.aco) {
       return '1';
     } else {
       return '0';
     }  
   } else {
-    // on the other pins, ground = LOW
-    // so we reverse the indication LOW >> HIGH
-    // to indicate the button is down
+    // other pins, ground = LOW
+    // so we reverse the indication 
     if (*regAddress & (1 << bitNumber)) {
       return '0';
     } else {
@@ -30,13 +29,15 @@ void activateAnalogComparator() {
   // write 0 to the bit ACIE
   // in the Analogue Comparator Control and Storage Register ACSR
   // Note: use NOT-AND logic to clear the bit
-  ACSR &= ~(0x01 << ACIE);
+  // ACSR &= ~(0x01 << ACIE);
+  acsr.acie = 0;
 
   // Select Internal Bandgap Reference Voltage
   // write 1 to the ACBG bit
   // in the ACSR register
   // use OR logic to set the bit
-  ACSR |= (0x01 << ACBG);
+  // ACSR |= (0x01 << ACBG);
+  acsr.acbg = 1;
   // arbitrary pause to allow the Bandgap voltage to stabilize
   delay(100);
 
