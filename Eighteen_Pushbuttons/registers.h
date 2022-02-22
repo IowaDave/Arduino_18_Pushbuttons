@@ -1,5 +1,10 @@
 /*
  * registers on the ATmega328P
+ * struct overlay of registers
+ * is thanks to Tom Almy's book, "Far Inside The Arduino"
+ *
+ * See discussion that follows regACSR
+ * for an explanation.
  */
 
 #ifndef REGISTERS_H
@@ -45,8 +50,7 @@ struct regADCSRB {
 #define adcsrb (*(volatile regADCSRB *)(&ADCSRB))
 
 struct regACSR {
-  // struct concept for accessing bits in register ACSR
-  // is thanks to Tom Almy's book, "Far Inside The Arduino"
+  // register ACSR at 22.3.2 pg 203
   uint8_t acis:2; // Bits 1, 0 – ACIS1, ACIS0: Analog Comparator Interrupt Mode Select
   uint8_t acic:1; // Bit 2 – ACIC: Analog Comparator Input Capture Enable
   uint8_t acie:1; // Bit 3 – ACIE: Analog Comparator Interrupt Enable
@@ -58,13 +62,16 @@ struct regACSR {
 // How to access the ACSR register as a struct
 // rather than as a byte?
 // The #define below institutes the following steps:
-// step 1 declare a regACSR type of struct pointer:
+// step 1 declare a struct pointer of type regACSR,
+// enclosed in parentheses:
 //    (volatile regACSR *)
-// step 2 assign to it the address of the ACSR register
+// step 2 assign to it the address of the ACSR register,
+// again using parentheses:
 //    (volatile regACSR *)(&ACSR)
-// step 3 place a dereference operator ("*") in front of the pointer
+// step 3 place a dereference operator ("*") 
+// in front of the pointer:
 //    *(volatile regACSR *)(&ACSR)
-// step 4 enclose the expression in parenthesis
+// step 4 enclose the entire expression in parentheses
 //    (*(volatile regACSR *)(&ACSR))
 // step 5 #define the enclosed expression to be 
 // the replacement for the macro "acsr".
@@ -76,7 +83,10 @@ struct regACSR {
 // rather than the arrow operator, e.g. acsr->aco,
 // because the dereference operator in the macro definition 
 // exposes the struct to which the pointer points.
-// This is used by the bitChar() funtion, declared below.
+
+// The structs defined above are used by 
+// the functions defined in registers.cpp
+// that are prototyped below:
 
 // function prototypes defined in registers.cpp 
 char bitChar(byte * regAddress, byte bitNumber);
