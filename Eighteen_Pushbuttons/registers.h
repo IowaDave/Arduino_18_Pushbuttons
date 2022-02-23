@@ -1,10 +1,17 @@
 /*
- * registers on the ATmega328P
- * struct overlay of registers
- * is thanks to Tom Almy's book, "Far Inside The Arduino"
+ * Having to do with registers 
+ * on the ATmega328P mpu
+ * 
+ * The idea of using struct overlays 
+ * to access the registers is thanks to 
+ * Tom Almy's book, "Far Inside The Arduino".
+ *
+ * Locations given for the registers
+ * refer to documentation in the datasheet
+ * for the "Automotive" version of the mpu.
  *
  * See discussion that follows regACSR
- * for an explanation.
+ * for an explanation of the #define statements.
  */
 
 #ifndef REGISTERS_H
@@ -85,8 +92,7 @@ struct regACSR {
 // exposes the struct to which the pointer points.
 
 // The structs defined above are used by 
-// the functions defined in registers.cpp
-// that are prototyped below:
+// the functions prototyped below:
 
 // function prototypes defined in registers.cpp 
 char bitChar(byte * regAddress, byte bitNumber);

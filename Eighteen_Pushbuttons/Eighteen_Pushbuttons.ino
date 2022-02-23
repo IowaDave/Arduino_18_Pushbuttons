@@ -1,39 +1,64 @@
 /*
  * Eighteen Buttons
- * Version 1.1
+ * Version 2.0
  * David Sparks
  * February 21, 2022
  * 
- * I am building toward an I2C pushbutton controller
- * capable of managing 18 discrete buttons
- * with a single Arduino Nano development board.
- * The controller hardware prototype connects buttons
- * to pins 2..13 and A0..A3, A6..A7 on an Arduino Nano.
- * Pins 0 and 1 are reserved, as are pins A4 and A5.
- * This first code version simply captures a button's position
+ * Firmware for an I2C pushbutton peripheral
+ * mounting an ATmega328p microprocessor (MPU)
+ * on an Arduino Nano development board
+ * managing 18 discrete, momentary pushbuttons.
+ * 
+ * The peripheral hardware prototype connects buttons
+ * to pins 2..13 and A0..A3, A6..A7 on the Nano.
+ * External 10k pull-ups are provided to pins 13, A6 and A7.
+ * Pins 0, 1, A4 andc A5 are reserved for communications.
+ * 
+ * This code version captures a button's position
  * in an array of characters, where '0' = up and '1' = down.
  * The pushbuttons may be considered as numbered sequentially
  * from 0 to 17, according to their position in the character array.
  * No attempt is made here to debounce a button
  * or to recognize a change in a button's position.
- * Those improvements are for later versions.
+ * Such improvements may be considerred in later versions.
  * 
  * The fun thing about this code version is that it avoids
  * using Arduino library functions to manage and sense the pins.
  * Instead, the code directly accesses the relevant I/O registers
- * on the ATmega328P MPU.
+ * on the MPU.
  * 
- * Note: external pull-ups are provided to pins 13, A6 and A7.
+ * This is the first version to work with I2C.
+ * It is very simple:
+ *   I2C Controller sends one byte in the range 0..17
+ *   specifying a position in the charqcter array.
+ *   The character there will be either '0' or '1'.
+ *   
+ * 
  */
 
+#include <Wire.h>
 #include "registers.h"
 
-#define STRING_BUF_SIZE (19)
-char bitString[STRING_BUF_SIZE];
+// define buffer to hold 18 pin status chars
+// where '0' = button is up,
+// and '1' = button is down.
+// Array position = pushbutton number:
+//                  0         1
+//                  012345678901234567
+char bitString[] = "000000000000000000";
+
+// store the requested button number globally
+uint8_t buttonRequested;
+
+// I2C event handler prototypes
+void receiveEvent(int howMany);
+void requestEvent();
 
 void setup() {
 
-  Serial.begin(115200); // for debugging
+  Wire.begin(8); // Become an I2C peripheral at address 8
+  Wire.onReceive(receiveEvent); // register event
+  Wire.onRequest(requestEvent); // register event
   
   activateAnalogComparator();
 
@@ -47,13 +72,6 @@ void setup() {
   PORTB |= 0b00111111;
   PORTC |= 0b00001111;    
 
-  for (int i = 0; i < STRING_BUF_SIZE - 1; i++) {
-    bitString[i] = '.';
-  }
-  bitString[STRING_BUF_SIZE - 1] = '\0';
-
-  Serial.println();
-  Serial.println(bitString);
 }
 
 void loop() {
@@ -105,10 +123,25 @@ void loop() {
 
   // test Analog Comparison output for pin A7
   bitString[17] = bitChar(&ACSR, ACO);
+}
 
-  Serial.println(bitString);
-  
-  // wait a few
-  delay(20);
+// function that executes whenever data is received from master
+// this function is registered as an event, see setup()
+void receiveEvent(int howMany) {
+  while (1 < Wire.available()) { 
+    // loop through all but the final
+    // however, we're getting only 1 byte
+    // so I expect this block to be skipped
+    buttonRequested = (uint8_t) Wire.read(); // receive byte as a uint8_t
+  }
+  buttonRequested = (uint8_t) Wire.read();    // receive byte as uint8_t
+}
 
+// function that executes whenever data is requested by master
+// this function is registered as an event, see setup()
+void requestEvent() {
+  // bitString holds chars, '0' or '1'. 
+  // Subtract '0' to convert to uint8_t 0 or 1.
+  Wire.write(bitString[buttonRequested] - '0'); // respond with pin status
+  // in one byte as expected by controller
 }
