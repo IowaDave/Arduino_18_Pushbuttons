@@ -1,6 +1,6 @@
 # Arduino_18_Pushbuttons
-### Make an I2C peripheral that provides
-### 18 pushbuttons to one Arduino Nano
+### Make an I2C peripheral that provides<br>
+18 pushbuttons to one Arduino Nano
 
 ![Hardware Prototype](https://github.com/IowaDave/Arduino_18_Pushbuttons/blob/e17db35a0ab9b3aec8c0797a5a2ed53ca84d4c21/Images/IMG_2666.jpg)
 
