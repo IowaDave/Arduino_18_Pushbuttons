@@ -1,28 +1,6 @@
 #include <Arduino.h>
-#include "registers.h"
+#include "AnalogComparator.h"
 
-char bitChar(byte * regAddress, byte bitNumber) {
-  char bitDigit[] = {'0', '1'};
-  // handle ACSR differently from digital pins
-  // pin grounded > ACO = 1 = button down
-  if (regAddress == &ACSR) {      
-    if (acsr.aco) {
-      return '1'; // when pin is HIGH
-    } else {
-      return '0'; // when pin is LOW
-    }  
-  } else {
-    // digital pins 
-    // ground = LOW = 0 = button down
-    // so we reverse the indication 
-    if (*regAddress & (1 << bitNumber)) {
-      return '0'; // when pin is HIGH
-    } else {
-      return '1'; // when pin is LOW
-    }  
-    
-  }
-}
 
 void activateAnalogComparator() {
   // enable the Analogue Comparator
